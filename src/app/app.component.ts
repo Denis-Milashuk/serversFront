@@ -6,7 +6,7 @@ import {map, Observable, of, startWith} from "rxjs";
 import {AppState} from "./interface/app-state";
 import {CustomResponse} from "./interface/cuctom-response";
 import {DataState} from "./enum/data-state.enum";
-import {catchError} from "rxjs/operators";
+import {catchError, tap} from "rxjs/operators";
 import {HttpErrorResponse} from "@angular/common/http";
 
 @Component({
@@ -17,7 +17,7 @@ import {HttpErrorResponse} from "@angular/common/http";
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit{
-  appState$: Observable<AppState<CustomResponse>>;
+  appState$: Observable<AppState<CustomResponse>> | undefined;
 
   constructor(private serverService: ServerService) {}
 
@@ -27,7 +27,8 @@ export class AppComponent implements OnInit{
         map(response => {
           return { dataState: DataState.LOADED_STATE, appDate: response}
         }),
-        startWith({ dataState: DataState.LOADING_STATE }),
+        startWith({ dataState: DataState.LOADING_STATE, error: 'Hello'}),
+        tap(console.log),
         catchError((error: HttpErrorResponse) => of({ dataState: DataState.ERROR_STATE, error: error.message }))
       )
   }
